@@ -1,44 +1,42 @@
-#include "rgbled.hpp" //include the declaration for this class
+#include "RGBLed.hpp"
 
-class Line
-{
-	public:
-	void setLength( double len );
-	double getLength( void );
-	Line();// This is the constructor declaration
-	~Line();// This is the destructor: declaration
+#include <Arduino.h>
+#include "Color.hpp"
 
-	private:
-	double length;
-};
 
 // Member functions definitions including constructor
-Line::Line(void)
+RGBLed::RGBLed(const byte REDPIN, const byte GREENPIN, const byte BLUEPIN)
 {
-
+	_color  = { 0, 0, 0, 0 };
+	_pin.R = REDPIN;
+	_pin.G = GREENPIN;
+	_pin.B = BLUEPIN;
 }
-Line::~Line(void)
-{
+RGBLed::~RGBLed(void)
+{ }
 
+int RGBLed::Map(int input, int input_start, int input_end, int output_start, int output_end)
+{
+	int input_range = input_end - input_start;
+	int output_range = output_end - output_start;
+	return (input - input_start)*output_range / input_range + output_start;
 }
 
-void Line::setLength(double len)
+int RGBLed::LedColor(const byte color, const byte alpha)
 {
-
+	return Map(color * alpha, 0, 255*255, 0, PWMRANGE);
 }
 
-double Line::getLength()
+void RGBLed::WriteColor(const Color color)
 {
-
+	analogWrite(_pin.R, LedColor(color.R, color.A));
+	analogWrite(_pin.G, LedColor(color.G, color.A));
+	analogWrite(_pin.B, LedColor(color.B, color.A));
 }
-// Main function for the program
-int main( )
+
+int RGBLed::setColor(const Color c)
 {
-	Line line;
-
-	// set line length
-	line.setLength(6.0);
-
-
-	return 0;
+	_color = c;
+	WriteColor(_color);
+	return 1;
 }
