@@ -52,7 +52,7 @@ void onMqttUnsubscribe(uint16_t packetId)
 	Serial.println(packetId);
 }
 
-void onMqttMessage(char* topic, char* payload, uint8_t qos, size_t len, size_t index, size_t total)
+void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
 {
 	if (DEBUG)
 	{
@@ -71,7 +71,11 @@ void onMqttMessage(char* topic, char* payload, uint8_t qos, size_t len, size_t i
 		Serial.print("  topic: ");
 		Serial.println(topic);
 		Serial.print("  qos: ");
-		Serial.println(qos);
+		Serial.println(properties.qos);
+		Serial.print("  dup: ");
+		Serial.println(properties.dup);
+		Serial.print("  retain: ");
+		Serial.println(properties.retain);
 		Serial.print("  len: ");
 		Serial.println(len);
 		Serial.print("  index: ");
