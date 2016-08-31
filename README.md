@@ -1,4 +1,4 @@
-# OHM: RGBLed
+# OHM: RGBLed v1.0.0
 An ESP8266 RGB led controller module for openHAMS
 
 ##Dependencies
@@ -8,6 +8,7 @@ The following are required to use this:
 - RGB LED strip
 - 3 MOSFETs for each color
 - openHAMS server
+Circuits are available for Fritzing in the repo. 
 
 ##Features
 - change LED color via `rgbled/set`
