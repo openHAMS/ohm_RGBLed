@@ -6,7 +6,7 @@
 #include "Color.hpp"
 #include "RGBLed.hpp"
 
-#define DEBUG		false
+#define DEBUG		0
 
 #define WIFI_SSID	"<SSID>"
 #define WIFI_PASS	"<PASS>"
@@ -23,6 +23,7 @@ RGBLed led = RGBLed(LED_RED, LED_GREEN, LED_BLUE);
 void onMqttConnect()
 {
 	Serial.println("** Connected to the broker **");
+//TODO: [home]/[room]/[device]/[function]/[node]/[property]
 	// [home]/[room]/[device]/[node]/[property]
 	uint16_t packetIdSub = mqttClient.subscribe("rcr/rcr/desk/rgbled/set", 1);
 	Serial.print("Subscribing at QoS 1, packetId: ");
@@ -52,45 +53,47 @@ void onMqttUnsubscribe(uint16_t packetId)
 	Serial.println(packetId);
 }
 
-void onMqttMessage(char* topic, char* payload, uint8_t qos, size_t len, size_t index, size_t total)
+void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
 {
-	if (DEBUG)
-	{
-		Serial.println("** Publish received **");
-		Serial.print("  payload: ");
-		Serial.println(payload);
-		Serial.print("  color: ");
-		Color color = ColorParse(payload);
-		Serial.print(color.R);
-		Serial.print(":");
-		Serial.print(color.G);
-		Serial.print(":");
-		Serial.print(color.B);
-		Serial.print(":");
-		Serial.println(color.A);
-		Serial.print("  topic: ");
-		Serial.println(topic);
-		Serial.print("  qos: ");
-		Serial.println(qos);
-		Serial.print("  len: ");
-		Serial.println(len);
-		Serial.print("  index: ");
-		Serial.println(index);
-		Serial.print("  total: ");
-		Serial.println(total);
-	}
+#if DEBUG == 1
+	Serial.println("** Publish received **");
+	Serial.print("  payload: ");
+	Serial.println(payload);
+	Serial.print("  color: ");
+	Color color = ColorParse(payload);
+	Serial.print(color.R);
+	Serial.print(":");
+	Serial.print(color.G);
+	Serial.print(":");
+	Serial.print(color.B);
+	Serial.print(":");
+	Serial.println(color.A);
+	Serial.print("  topic: ");
+	Serial.println(topic);
+	Serial.print("  qos: ");
+	Serial.println(properties.qos);
+	Serial.print("  dup: ");
+	Serial.println(properties.dup);
+	Serial.print("  retain: ");
+	Serial.println(properties.retain);
+	Serial.print("  len: ");
+	Serial.println(len);
+	Serial.print("  index: ");
+	Serial.println(index);
+	Serial.print("  total: ");
+	Serial.println(total);
+#endif
 	led.setColor(ColorParse(payload));
 	mqttClient.publish("rcr/rcr/desk/rgbled/status", 1, true, payload);
 }
 
 void onMqttPublish(uint16_t packetId)
 {
-	if (DEBUG)
-	{
+#if DEBUG == 1
 		Serial.println("** Publish acknowledged **");
 		Serial.print("  packetId: ");
 		Serial.println(packetId);
-	}
+#endif
 }
 
 void setup()
