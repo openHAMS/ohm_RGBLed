@@ -3,6 +3,10 @@
 #include <AsyncMqttClient.h>
 #include <stdlib.h>
 
+#include <Task.h>
+#include <Sodaq_BMP085.h>
+#include "taskBMP180.hpp"
+
 #include "Color.hpp"
 #include "RGBLed.hpp"
 
@@ -18,6 +22,21 @@
 
 AsyncMqttClient mqttClient;
 RGBLed led = RGBLed(LED_RED, LED_GREEN, LED_BLUE);
+
+TaskManager taskManager;
+void sendTemp(long a, float t);
+TaskReadWeather taskReadWeather(sendTemp, MsToTaskTime(1000));
+
+char temp[6];
+char atm[6];
+
+void sendTemp(long a, float t)
+{
+	String(a).toCharArray(atm, sizeof(atm));
+	String(t).toCharArray(temp, sizeof(temp));
+	mqttClient.publish("rcr/rcr/desk/sensors/bmp180/pressure"   , 1, true, atm);
+	mqttClient.publish("rcr/rcr/desk/sensors/bmp180/temperature", 1, true, temp);
+}
 
 
 void onMqttConnect()
@@ -130,9 +149,10 @@ void setup()
 	Serial.print("Connecting to MQTT...");
 	mqttClient.connect();
 	Serial.println("Connected!");
+	taskManager.StartTask(&taskReadWeather);
 }
 
 void loop()
 {
-
+	taskManager.Loop();
 }
