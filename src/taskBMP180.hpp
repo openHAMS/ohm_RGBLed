@@ -7,13 +7,15 @@ class TaskReadWeather : public Task
 {
 	public:
 		typedef void(*action)(long a, float t);
-		TaskReadWeather(action function, uint32_t timeInterval) : // pass any custom arguments you need
+		TaskReadWeather(action function, unsigned int alt, uint32_t timeInterval) : // pass any custom arguments you need
 			Task(timeInterval),
+			altitude(alt),
 			_callback(function)
 		{ };
 
 	private:
 		const action _callback;
+		const unsigned int altitude;
 		Sodaq_BMP085 sensor;
 
 
@@ -29,7 +31,7 @@ class TaskReadWeather : public Task
 		virtual void OnUpdate(uint32_t deltaTime)
 		{
 			float t = sensor.readTemperature();
-			long a = sensor.readPressure();
+			long a = sensor.readPressure(altitude);
 			_callback(a, t);
 		}
 };
