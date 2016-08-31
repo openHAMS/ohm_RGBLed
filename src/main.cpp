@@ -15,7 +15,7 @@
 #define WIFI_SSID	"<SSID>"
 #define WIFI_PASS	"<PASS>"
 
-#define ALTITUDE 210 // Altitude via GPS - Miskolc, Diósgyőr
+#define ALTITUDE	210 // Altitude via GPS - Miskolc, Diósgyőr
 
 #define LED_RED		12
 #define LED_GREEN	14
