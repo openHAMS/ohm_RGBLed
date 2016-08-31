@@ -3,10 +3,6 @@
 #include <AsyncMqttClient.h>
 #include <stdlib.h>
 
-#include <Task.h>
-#include <Sodaq_BMP085.h>
-#include "taskBMP180.hpp"
-
 #include "Color.hpp"
 #include "RGBLed.hpp"
 
@@ -14,8 +10,6 @@
 
 #define WIFI_SSID	"<SSID>"
 #define WIFI_PASS	"<PASS>"
-
-#define ALTITUDE	210 // Altitude via GPS - Miskolc, Diósgyőr
 
 #define LED_RED		12
 #define LED_GREEN	14
@@ -25,30 +19,11 @@
 AsyncMqttClient mqttClient;
 RGBLed led = RGBLed(LED_RED, LED_GREEN, LED_BLUE);
 
-TaskManager taskManager;
-void sendTemp(long a, float t);
-TaskReadWeather taskReadWeather(sendTemp, ALTITUDE, MsToTaskTime(1000));
-
-char temp[6];
-char atm[6];
-
-void sendTemp(long a, float t)
-{
-	String(a).toCharArray(atm, sizeof(atm));
-	String(t).toCharArray(temp, sizeof(temp));
-	mqttClient.publish("rcr/rcr/desk/sensors/bmp180/pressure"   , 1, true, atm );
-	mqttClient.publish("rcr/rcr/desk/sensors/bmp180/temperature", 1, true, temp);
-#if DEBUG == 1
-	Serial.print(atm);
-	Serial.print(" ");
-	Serial.println(temp);
-#endif
-}
-
 
 void onMqttConnect()
 {
 	Serial.println("** Connected to the broker **");
+//TODO: [home]/[room]/[device]/[function]/[node]/[property]
 	// [home]/[room]/[device]/[node]/[property]
 	uint16_t packetIdSub = mqttClient.subscribe("rcr/rcr/desk/rgbled/set", 1);
 	Serial.print("Subscribing at QoS 1, packetId: ");
@@ -154,10 +129,9 @@ void setup()
 	Serial.print("Connecting to MQTT...");
 	mqttClient.connect();
 	Serial.println("Connected!");
-	taskManager.StartTask(&taskReadWeather);
 }
 
 void loop()
 {
-	taskManager.Loop();
+
 }
